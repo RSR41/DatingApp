@@ -11,13 +11,15 @@ import ProfileSetupScreen from './screens/ProfileSetupScreen';
 
 import { NavigationContainer } from '@react-navigation/native'; // 네비게이션 컨테이너
 import { createNativeStackNavigator } from '@react-navigation/native-stack'; // Stack Navigator
+import OnlineStatusMonitor from './screens/OnlineStatusMonitor'; // OnlineStatusMonitor 부분
 import SignupScreen from './screens/SignupScreen'; // 회원가입 화면
 import LoginScreen from './screens/LoginScreen';   // 로그인 화면
 import HomeScreen from './screens/HomeScreen';     // 홈 화면
 import MatchingPreferenceScreen from './screens/MatchingPreferenceScreen';
 import MatchingListScreen from './screens/MatchingListScreen';
 import { ActivityIndicator } from 'react-native';  // 로딩 표시
-import AdminHomeScreen from './screens/AdminHomeScreen';// 📌  추가
+import AdminHomeScreen from './screens/AdminHomeScreen';  // 📌  추가
+import ChatScreen from './screens/ChatScreen';  // ChatScreen 구문 가져오기
 
 const Stack = createNativeStackNavigator(); // Stack 네비게이터 생성
 
@@ -65,6 +67,10 @@ export default function App() {
   }
 
   return (
+    <>
+      {/* 온라인 상태 모니터링을 위한 컴포넌트 */}
+      <OnlineStatusMonitor />
+
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
@@ -74,6 +80,7 @@ export default function App() {
               <>
                 <Stack.Screen name="AdminHome" component={AdminHomeScreen} />
                 <Stack.Screen name="MatchingList" component={MatchingListScreen} />
+                <Stack.Screen name="Chat" component={ChatScreen} />
               </>
             ) : (
               // 👤 일반 사용자일 경우
@@ -81,19 +88,20 @@ export default function App() {
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="MatchingPreference" component={MatchingPreferenceScreen} />
                 <Stack.Screen name="MatchingList" component={MatchingListScreen} />
+                <Stack.Screen name="Chat" component={ChatScreen} />
               </>
             )
           ) : (
-                <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
-            )
-          ) : (
-              <>
-                <Stack.Screen name="Signup" component={SignupScreen} />
-                <Stack.Screen name="Login" component={LoginScreen} />
-              </>
-            )}
-
+            <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+          )
+        ) : (
+          <>
+            <Stack.Screen name="Signup" component={SignupScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
-  );
-}
+    </>
+      );
+    }
