@@ -1,7 +1,7 @@
 // screens/MatchingPreferenceScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 import { useNavigation } from '@react-navigation/native';
 
@@ -15,6 +15,36 @@ const MatchingPreferenceScreen = () => {
   const [preferredLocation, setPreferredLocation] = useState('');
   const [interests, setInterests] = useState('');
 
+  // ✅ 기존 저장된 선호 조건 불러오기
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      const uid = auth.currentUser?.uid;
+      if (!uid) return;
+
+      try {
+        const docSnap = await getDoc(doc(db, 'users', uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          console.log("✅ 불러온 데이터:", JSON.stringify(data, null, 2));
+
+          if (__DEV__) {
+            console.log("🔥 유저 정보:", data);
+          }
+
+          setPreferredGender(data.preferredGender || '');
+          setPreferredAgeMin(data.preferredAgeMin?.toString() || '');
+          setPreferredAgeMax(data.preferredAgeMax?.toString() || '');
+          setPreferredLocation(data.preferredLocation || '');
+          setInterests((data.interests || []).join(', '));
+        }
+      } catch (error) {
+        console.error('선호 조건 불러오기 실패:', error);
+      }
+  };
+
+    fetchPreferences();
+  }, []);
+  
   const handleSavePreferences = async () => {
     const uid = auth.currentUser?.uid;
 
@@ -31,12 +61,14 @@ const MatchingPreferenceScreen = () => {
     try {
       await updateDoc(doc(db, 'users', uid), {
         preferredGender,
-        preferredAgeMin: Number(preferredAgeMin),
-        preferredAgeMax: Number(preferredAgeMax),
+        preferredAgeMin: isNaN(Number(preferredAgeMin)) ? null : Number(preferredAgeMin),
+        preferredAgeMax: isNaN(Number(preferredAgeMax)) ? null : Number(preferredAgeMax),
         preferredLocation,
-        interests: interests.split(',').map((item) => item.trim()),
+        interests: interests
+          ? interests.split(',').map((item) => item.trim()).filter(Boolean)
+          : [],
       });
-
+    
       Alert.alert('저장 완료', '선호 조건이 저장되었습니다.');
       navigation.replace('Home');
     } catch (error) {

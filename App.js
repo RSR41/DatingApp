@@ -20,6 +20,21 @@ import MatchingListScreen from './screens/MatchingListScreen';
 import { ActivityIndicator } from 'react-native';  // 로딩 표시
 import AdminHomeScreen from './screens/AdminHomeScreen';  // 📌  추가
 import ChatScreen from './screens/ChatScreen';  // ChatScreen 구문 가져오기
+import ChatsListScreen from './screens/ChatsListScreen';
+import AdminReportsScreen from './screens/AdminReportsScreen';
+
+import * as Notifications from 'expo-notifications';
+
+
+// 알림 핸들러 설정 (예: App.js 최상단에 추가)
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 
 const Stack = createNativeStackNavigator(); // Stack 네비게이터 생성
 
@@ -68,7 +83,7 @@ export default function App() {
 
   return (
     <>
-      {/* 온라인 상태 모니터링을 위한 컴포넌트 */}
+      {/* 온라인 상태 모니터링을 위한 컴포넌트 */}  
       <OnlineStatusMonitor />
 
     <NavigationContainer>
@@ -76,19 +91,19 @@ export default function App() {
         {user ? (
           user.profileSet ? (
             user.isAdmin ? (
-              // 🔐 관리자일 경우
               <>
                 <Stack.Screen name="AdminHome" component={AdminHomeScreen} />
                 <Stack.Screen name="MatchingList" component={MatchingListScreen} />
                 <Stack.Screen name="Chat" component={ChatScreen} />
+                <Stack.Screen name="AdminReports" component={AdminReportsScreen} />
               </>
             ) : (
-              // 👤 일반 사용자일 경우
               <>
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="MatchingPreference" component={MatchingPreferenceScreen} />
                 <Stack.Screen name="MatchingList" component={MatchingListScreen} />
                 <Stack.Screen name="Chat" component={ChatScreen} />
+                <Stack.Screen name="ChatsList" component={ChatsListScreen} />
               </>
             )
           ) : (
@@ -98,6 +113,7 @@ export default function App() {
           <>
             <Stack.Screen name="Signup" component={SignupScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Home" component={HomeScreen} />
           </>
         )}
       </Stack.Navigator>

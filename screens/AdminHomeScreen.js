@@ -4,8 +4,25 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { auth } from '../services/firebase';
+import { useNavigation } from '@react-navigation/native'; // navigation 이동을 위해
+
 
 const AdminHomeScreen = () => {
+  const navigation = useNavigation(); // 네비게이션 인스턴스 가져오기
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut(); // Firebase에서 로그아웃 실행
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }], // 로그인 화면으로 초기화 이동
+      });
+    } catch (error) {
+      console.error('로그아웃 오류:', error);
+    }
+  };
+
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -41,13 +58,19 @@ const AdminHomeScreen = () => {
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>
         관리자 페이지: 사용자 목록
       </Text>
+  
       <FlatList
         data={users}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />
+  
+      {/* ✅ 로그아웃 버튼 추가 (관리자 → 로그인 화면으로 이동) */}
+      <View style={{ marginTop: 24 }}>
+        <Button title="로그아웃" onPress={handleLogout} color="red" />
+      </View>
     </View>
-  );
+  );  
 };
 
 export default AdminHomeScreen;

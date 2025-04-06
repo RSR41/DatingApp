@@ -10,6 +10,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db, auth } from '../services/firebase';
+import { scheduleReportNotification } from '../utils/AdminNotifications';
 
 const AdminDashboardScreen = () => {
   const [users, setUsers] = useState([]);
@@ -17,6 +18,7 @@ const AdminDashboardScreen = () => {
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
+  const previousReportCount = useRef(0); // 이전 신고 내역 수량을 추적하기 위한 useRef
 
   // 전체 사용자 목록 실시간 구독 (개인정보, 온라인 상태, 정지 상태 등)
   useEffect(() => {
@@ -41,6 +43,15 @@ const AdminDashboardScreen = () => {
     });
     return () => unsubscribeReports();
   }, []);
+
+  useEffect(() => {
+    if (reports.length > previousReportCount.current) {
+      // 새 신고가 접수되었을 때, 마지막 신고 건으로 알림 전송
+      const newReport = reports[reports.length - 1];
+      scheduleReportNotification(newReport);
+    }
+    previousReportCount.current = reports.length;
+  }, [reports]);
 
   // 실시간 채팅방 목록 구독 (채팅방 메타데이터)
   useEffect(() => {

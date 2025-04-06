@@ -20,30 +20,39 @@ const ProfileSetupScreen = () => {
       Alert.alert('입력 오류', '모든 항목을 입력해주세요.');
       return;
     }
-
+  
     const currentUser = auth.currentUser;
     if (!currentUser) {
       Alert.alert('오류', '로그인된 사용자가 없습니다.');
       return;
     }
-
+  
     try {
-      // Firestore에 저장
       await setDoc(doc(db, 'users', currentUser.uid), {
         name,
         age: parseInt(age),
         gender,
         location,
-        createdAt: new Date()
+        preferredGender: '',
+        preferredAgeMax: null,
+        preferredLocation: '',
+        interests: [],
+        createdAt: new Date(),
+        profileSet: true,
       });
-
-      Alert.alert('저장 완료', '프로필이 저장되었습니다.');
-      navigation.replace('Home');
+  
+      Alert.alert('완료', '프로필이 저장되었습니다.', [
+        {
+          text: '확인',
+          onPress: () => navigation.replace('MatchingPreference'),
+        },
+      ]);
+  
     } catch (error) {
       console.error('프로필 저장 오류:', error);
       Alert.alert('오류', '프로필 저장에 실패했습니다.');
     }
-  };
+  };  
 
   return (
     <View style={styles.container}>
